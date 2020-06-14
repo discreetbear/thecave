@@ -1,0 +1,49 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © DiscreetBear
+
+//@version=3
+study("TD Pressure")
+h1=hline(75) 
+h2=hline(25)
+fill(h1,h2,color=blue)
+
+buypres = 0.0
+sellpres = 0.0
+delta = 0.0
+truerange = 0.0
+TDPRES = 0.0
+dom = 0.0
+len = (5)
+for i = 0 to len by 1
+    delta := close[i] - open[i]
+    truerange := high[i] - low[i]
+
+    if delta > 0
+        buypres := buypres + delta / truerange * volume[i]
+        buypres
+
+    if delta < 0
+        sellpres := sellpres + delta / truerange * volume[i]
+        sellpres
+
+dom := buypres + abs(sellpres)
+if dom != 0.0
+    TDPRES := 100 * (buypres / dom)
+    TDPRES
+else
+    TDPRES := 50
+    TDPRES
+
+level_75 = 75
+level_75pres = TDPRES > level_75 ? TDPRES : level_75
+level_25 = 25
+level_25pres = TDPRES < level_25 ? TDPRES : level_25
+
+p1 = plot(series=level_75, color=red, linewidth=1, transp=100)
+p2 = plot(series=level_75pres, color=red, linewidth=1, transp=100)
+p3 = plot(series=level_25, color=green, linewidth=1, transp=100)
+p4 = plot(series=level_25pres, color=green, linewidth=1, transp=100)
+fill(p1, p2, color=green, transp=0)
+fill(p3, p4, color=orange, transp=0)
+
+plot(TDPRES, linewidth=2, color=navy)
