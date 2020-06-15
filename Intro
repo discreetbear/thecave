@@ -21,10 +21,14 @@ Divide the close of the current price bar by the close 12 price bars earlier.
     
     The idea for the TD ROC indicator (non overlay)
         plot both bands
-        mark at X on 16th bar(and further) if price remains to be overbought/oversold.
+        plot an X on 16th bar and further (or highlight), if price remains to be overbought/oversold.
     The idea for TD Alignment script
         12 and fewer overbought/oversold bars are given a +1/-1 value. 
         13th and on overbought/oversold bars are given zero a 0 value.
+        
+The overall point of this is: 
+      extreme signals (being overbought/oversold 16+ bars) there may be extention of the current trend
+      mild signals (being overbought/oversold under 16 bars, ideally 12 or fewer) tend to show trend reversal.
 //////// TD Rate of Change - End ///////
 
 
@@ -73,11 +77,16 @@ This has a couple different parts.
           Closing price greater than prior close.
           Open of next bar must be greater than or equal to prior price lows.
           Market must trade below the open and post a low below either one of the prior 2 price lows.
-        If intraday trading (for example 1,5,10 minute timeframes) adjust the bands to +30/-30
+        **If intraday trading (for example 1,5,10 minute timeframes) adjust the bands to +30/-30
           
   The idea for TD Alignment script
-        5 and fewer overbought/oversold bars are given a +1/-1 value. 
-        6th and on overbought/oversold bars are given zero a 0 value.
+        6 and fewer overbought/oversold bars are given a +1/-1 value. 
+        7th and on overbought/oversold bars are given zero a 0 value.
+
+The overall point of this is:
+      Similar to RSI, but more responsive to price fluctiations
+      Compares overlaping ranges over time to identify reversals when market is volatile.
+      mild signals (being overbought/oversold under 6 bars) tend to show trend reversal.
 //////// TD Range Expansion - End ///////
 
 //////// TD Pressure - Start ///////
