@@ -1,0 +1,227 @@
+These formulas are from the book "New Market Timing Techniques" and "Demark Indicators" by Demark.
+The oscillators from the books are:
+      TD Rate of Change
+      TD Range Expansion Index
+      TD Pressure
+      TD Demarker 1
+      TD Demarker 2
+
+They combine to create the TD Alignment script which could be a non overlay line or overlay buy/sell signal at +5/-5. 
+When an indicator is in the predifined overbought zone it is given a value of +1.
+When an indicator is in the predefined oversold zone it is given a value of -1
+Extreme TD alignment readings at +5 or -5 is associated with near term price exhaustion
+  when combined with TD Sequential and TD Combo.
+
+//////// TD Rate of Change - Start ///////
+Divide the close of the current price bar by the close 12 price bars earlier.
+  Overbought/oversold band fluctiates between 97.5% and 102.5%.
+  If intraday trading (for example 1,5,10 minute timeframes) adjust the bands to 99.75% and 100.25%.
+    For 15 or fewer price bars a potential top/bottom is discovered.
+    Beyond 16 and trend is likely to extend at random lengths.
+    
+    The idea for the TD ROC indicator (non overlay)
+        plot both bands
+        mark at X on 16th bar(and further) if price remains to be overbought/oversold.
+    The idea for TD Alignment script
+        12 and fewer overbought/oversold bars are given a +1/-1 value. 
+        13th and on overbought/oversold bars are given zero a 0 value.
+//////// TD Rate of Change - End ///////
+
+
+//////// TD Range Expansion Index - Start ///////
+This has a couple different parts.
+  
+  Add the following:
+  The differnce between the high of the current bar and the high 2 bars earlier
+  TO
+  The difference between the low of the current bar and the low 2 bars earlier
+  X = (H - H[2]) + (L - L[2])
+  
+  Condition 1:
+    High of current price bar must be greater or equal to low either 5 or 6 bars earlier.
+    OR
+    High of two bars ago must be greater than or equal to close 7 or 8 bars ago.
+  Condition 2:
+    Low of current bar must be less than or equal to high either 5 or 6 bars earlier.
+    OR
+    High of two bars ago must be less than or equal to close either 7 or 8 bars ago.
+  
+  If EITHER condition NOT satisfied current bar is assigned a 0 value.
+  
+  If BOTH conditions met the value for that bar is calculated by the following:
+    Add the differnece between high and low for each bar of a 5 bar period.
+    Total all values.
+    Divide the result by the highest highest high and lowest low.
+    Multiply that result by 100.
+          This creates a range of -100 to 100. 
+          Overbought being +45 and oversold being -45.
+  Y = sum of difference of high and low of bar1 through bar5
+  H5 = highest high over last 5 bars
+  L5 = lowest low over last 5 bars
+  TD REI = (Y/(H5 - L5)) X 100
+  
+  The idea for the TD REI indicator (non overlay)
+        plot both bands
+        highlight the area when price is above/below those ranges.
+        Plot Buy Signal if all conditions met:
+          TD REI below -45 for 6 or fewer bars.
+          Closing price greater than prior close.
+          Open of next bar must be less than or equal to 2 prior price highs.
+          Market must trade above the open and post a high above either one of the prior 2 price highs.
+        Plot Sell Signal if all conditions met:
+          TD REI abocve +45 for 6 or fewer bars.
+          Closing price greater than prior close.
+          Open of next bar must be greater than or equal to prior price lows.
+          Market must trade below the open and post a low below either one of the prior 2 price lows.
+        If intraday trading (for example 1,5,10 minute timeframes) adjust the bands to +30/-30
+          
+  The idea for TD Alignment script
+        5 and fewer overbought/oversold bars are given a +1/-1 value. 
+        6th and on overbought/oversold bars are given zero a 0 value.
+//////// TD Range Expansion - End ///////
+
+//////// TD Pressure - Start ///////
+    The idea for the TD Pressure indicator (non overlay)
+        plot both bands at 75 and 25
+        Plot signal when crossing below 75 and crossing over 25
+    The idea for TD Alignment script
+        5 bars overbought above 82 /oversold below 18 are given a +1/-1 value. 
+        6th bar overbough/oversold and all else are given a 0 value.
+        
+        
+ This one is hard for me to get because I get lost on the volume part.
+ 
+ "... Demark devised a ration bty subtracting the current open from the current close, divided by the current range
+ which assigns percentages to buying and selling pressure. That ration is multiplied by current volume numbers, and
+ the result is totaled over time... Demark uses a 5-price-bar period and compares the current close and open, 
+ divided by the current volume. The 5-bar ratio of that buying pressure is totaled and then divided by the
+ absolute calue of ths 5 price bars."
+ 
+ For trading futures:
+  "(volume / open interest) * volume"
+ 
+ I found a script that looks like the standard TD pressure but I have no idea what most of those functions are. 
+ I haven't figured out the "for" stuff yet in pinescript.
+ 
+study("TD Pressure")
+h1=hline(75) 
+h2=hline(25)
+fill(h1,h2,color=blue)
+
+buypres = 0.0
+sellpres = 0.0
+delta = 0.0
+truerange = 0.0
+TDPRES = 0.0
+dom = 0.0
+len = (5)
+for i = 0 to len by 1
+    delta := close[i] - open[i]
+    truerange := high[i] - low[i]
+
+    if delta > 0
+        buypres := buypres + delta / truerange * volume[i]
+        buypres
+
+    if delta < 0
+        sellpres := sellpres + delta / truerange * volume[i]
+        sellpres
+
+dom := buypres + abs(sellpres)
+if dom != 0.0
+    TDPRES := 100 * (buypres / dom)
+    TDPRES
+else
+    TDPRES := 50
+    TDPRES
+
+level_75 = 75
+level_75pres = TDPRES > level_75 ? TDPRES : level_75
+level_25 = 25
+level_25pres = TDPRES < level_25 ? TDPRES : level_25
+
+p1 = plot(series=level_75, color=red, linewidth=1, transp=100)
+p2 = plot(series=level_75pres, color=red, linewidth=1, transp=100)
+p3 = plot(series=level_25, color=green, linewidth=1, transp=100)
+p4 = plot(series=level_25pres, color=green, linewidth=1, transp=100)
+fill(p1, p2, color=green, transp=0)
+fill(p3, p4, color=orange, transp=0)
+
+plot(TDPRES, linewidth=2, color=navy)
+//////// TD Pressure - End ///////
+
+//////// TD Demarker 1 - Start //////
+To Find X:
+  1. If current high is less than or equal to the prior high, bar value is 0.
+  2. If current high is higher than prior high, bar value is the difference of the two.
+  3. X = Sum of bar values over 13 bar period.
+To Find Y:
+  1. If current low is less than or equal to the prior low, bar value is 0.
+  2. If current low is higher than prior high, bar value is the difference of the two.
+  3. Y = Sum of bar values over 13 bar period.
+TD Demarker 1 = (x / (X + Y))*100
+Overbought over 60
+Oversold under 40
+
+    The idea for the TD DM1 indicator (non overlay)
+        plot both bands
+        Plot Buy Signal if all conditions met:
+          TD DM1 below 40 for 13 or fewer bars.
+          Close lower than low of either one or two prior bars.
+          Close must be below prior close and open.
+          Open of the following bar should be less than or equal to the close of either 2 previous bars.
+          Market must trade above one of the 2 previous bar closes.
+        Plot Sell Signal if all conditions met:
+          TD DM1 above 60 for 6 or fewer bars.
+          Close greater than high of either one or two prior bars.
+          Close must be above prior close and open.
+          Open of the following bar should be above than or equal to the close of either 2 previous bars.
+          Market must trade below one of the 2 previous bar closes.
+    The idea for TD Alignment script
+        4th bar overbought above 79/4th bar oversold below 21 an is given +1/-1 value
+        5th bar overbought/oversold and all elss are given a 0 value
+//////// TD Demarker 1 - End///////
+
+
+//////// TD Demarker 2 - Start ///////
+To Find Numerator(X):
+  1. (High - previous close), summed over a period of 8 bars
+  THEN ADD
+  2. (Close - low), summed over a period of 8 bars
+  THEN SUBTRACT
+  3. Value of (previous close - current high)
+  4. Assign a value of 0 to any bar with a negative return.
+To Find Denominator (Y):
+  1. X
+  THEN ADD
+  2. (Previous close - Low), summed over a period of 8 bars
+  Then ADD
+  3. (High - close), summed over a period of 8 bars
+  THEN SUBTRACT
+  4. Value of (previous close - current low)
+  5. Assigh a value of 0 to any bar with negative return.
+  
+
+TD Demarker 2 = (x / (X + Y)*100
+Overbought over 60
+Oversold under 40
+
+    The idea for the TD DM2 indicator (non overlay)
+        plot both bands
+        Plot Buy Signal if all conditions met:
+          TD DM2 below 40 for 8 or fewer bars.
+          Close lower than low of either one or two prior bars.
+          Close must be below prior close and open.
+          Open of the following bar should be less than or equal to the close of either 2 previous bars.
+          Market must trade above one of the 2 previous bar closes.
+        Plot Sell Signal if all conditions met:
+          TD DM2 above 60 for 3 or fewer bars.
+          Close greater than high of either one or two prior bars.
+          Close must be above prior close and open.
+          Open of the following bar should be above than or equal to the close of either 2 previous bars.
+          Market must trade below one of the 2 previous bar closes.
+    The idea for TD Alignment script
+        4th bar overbought above 79/4th bar oversold below 21 an is given +1/-1 value
+        5th bar overbought/oversold and all elss are given a 0 value
+//////// TD Demarker 2 - End ///////
+
