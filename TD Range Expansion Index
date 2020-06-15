@@ -1,0 +1,34 @@
+study("TD REI")
+TDREIper= (5)
+HighMom= high - high[2]
+LowMom= low - low[2]
+TD1= (high>=low[5] or high>=low[6])
+TD2= (high[2]>=close[7] or high[2]>=close[8])
+TD3= (low<=high[5] or low<=high[6])
+TD4= (low[2]<=close[7] or low[2]<=close[8])
+TD5= (TD1 or TD2) and (TD3 or TD4)
+TD6= iff(TD5,HighMom + LowMom,0)
+TD7= abs(HighMom) + abs(LowMom)
+TDREI= 100 * sum(TD6,TDREIper) / sum(TD7,TDREIper)
+TDREIover= (TDREI>45)
+TDREIunder= (TDREI<-45)
+h1=hline(45) 
+h2=hline(-45)
+fill(h1,h2,color=color.blue)
+
+level_40 = 45
+level_40rei = TDREI > level_40 ? TDREI : level_40
+level_neg40 = -45
+level_neg40rei = TDREI < level_neg40 ? TDREI : level_neg40
+
+p1 = plot(series=level_40, color=color.red, linewidth=1, transp=100)
+p2 = plot(series=level_40rei, color=color.red, linewidth=1, transp=100)
+p3 = plot(series=level_neg40, color=color.green, linewidth=1, transp=100)
+p4 = plot(series=level_neg40rei, color=color.green, linewidth=1, transp=100)
+fill(p1, p2, color=color.green, transp=0)
+fill(p3, p4, color=color.orange, transp=0)
+cond1= (barssince(TDREIunder) ==6) <----- This is wrong. I need to create formula for buy signal
+cond2= (barssince(TDREIover) ==6) <----- This is wrong. I need to create formula for sell signal
+plotshape(cond1, style=shape.xcross, location=location.top, color=color.black) 
+plotshape(cond2, style=shape.xcross, location=location.bottom, color=color.black) 
+plot(TDREI, linewidth=2, color=color.navy)
