@@ -1,7 +1,4 @@
-//@version=4
-// © DiscreetBear
-
-study("TD ROC")
+study("TD ROC: Intraday")
 source = close
 length = 12
 roc = (close / source[length])*100
@@ -24,6 +21,7 @@ fill(p3, p4, color=color.orange, transp=0)
 plot(roc, linewidth=2, color=color.navy)
 TDROCover= roc>100.25
 TDROCunder= roc<99.975
-TDPOQ= (barssince(TDROCunder) ==10)
-plotshape(TDPOQ, style=shape.xcross, location=location.top, color=color.green)
-
+cond1= (barssince(TDROCunder) ==16) <----- This is wrong. I need to find a way to show TDROCunder true for current and previous 15 bars
+cond2= (barssince(TDROCover) ==16) <----- This is wrong. I need to find a way to show TDROCover true for current and previous 15 bars
+plotshape(cond1, style=shape.xcross, location=location.top, color=color.black) <----- Maybe show an X over until the ROC crosses above band
+plotshape(cond2, style=shape.xcross, location=location.bottom, color=color.black) <----- Maybe show an X under until the ROC crosses above band
